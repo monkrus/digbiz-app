@@ -9,50 +9,42 @@ import {
   Alert,
 } from 'react-native';
 import { auth } from '@/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
-// Simple email validator.  Returns true if the string appears to be a valid
-// email address.  This is not exhaustive but catches common mistakes.
-const isValidEmail = (value: string): boolean => {
-  return /\S+@\S+\.\S+/.test(value);
-};
+const isValidEmail = (value: string): boolean => /\S+@\S+\.\S+/.test(value);
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
-    // Trim whitespace from inputs
+  const handleRegister = async () => {
     const trimmedEmail = email.trim();
     const trimmedPassword = password.trim();
+    const trimmedConfirm = confirm.trim();
 
-    // Basic validation before hitting the network
     if (!isValidEmail(trimmedEmail)) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
     if (trimmedPassword.length < 6) {
-      Alert.alert(
-        'Invalid Password',
-        'Password must be at least 6 characters long.',
-      );
+      Alert.alert('Invalid Password', 'Password must be at least 6 characters long.');
+      return;
+    }
+    if (trimmedPassword !== trimmedConfirm) {
+      Alert.alert('Password Mismatch', 'Passwords do not match.');
       return;
     }
 
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, trimmedEmail, trimmedPassword);
-      Alert.alert('Success', 'You are logged in!');
-      // Navigate to the share section after login
-      router.replace('/main/share');
+      await createUserWithEmailAndPassword(auth, trimmedEmail, trimmedPassword);
+      Alert.alert('Success', 'Account created!');
+      router.replace('/main/edit');
     } catch (error: any) {
-      // Provide a friendlier error message if possible
-      const message =
-        (error?.code === 'auth/wrong-password'
-          ? 'Incorrect email or password.'
-          : error?.message) || 'Unable to log in.';
-      Alert.alert('Login Error', message);
+      const message = error?.message || 'Unable to create account.';
+      Alert.alert('Registration Error', message);
     } finally {
       setLoading(false);
     }
@@ -60,7 +52,7 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+      <Text style={styles.title}>Register</Text>
       <TextInput
         style={styles.input}
         value={email}
@@ -76,14 +68,21 @@ export default function LoginScreen() {
         placeholder="Password"
         secureTextEntry
       />
+      <TextInput
+        style={styles.input}
+        value={confirm}
+        onChangeText={setConfirm}
+        placeholder="Confirm Password"
+        secureTextEntry
+      />
       <Button
-        title={loading ? 'Logging in…' : 'Login'}
-        onPress={handleLogin}
+        title={loading ? 'Creating…' : 'Create Account'}
+        onPress={handleRegister}
         disabled={loading}
       />
       <Button
-        title="Create Account"
-        onPress={() => router.replace('/auth/register')}
+        title="Back to Login"
+        onPress={() => router.replace('/auth/login')}
       />
     </View>
   );
