@@ -1,33 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, Alert, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { useSubscription } from '@/providers/SubscriptionProvider';
-import { auth } from '@/firebase';
-import { fetchAnalytics } from '@/lib/analytics';
 
-export default function AnalyticsScreen() {
+export default function NFCScreen() {
   const { isPro, purchase } = useSubscription();
-  const [views, setViews] = useState(0);
-  const [shares, setShares] = useState(0);
-  const user = auth.currentUser;
 
   useEffect(() => {
     if (!isPro) {
       Alert.alert(
         'Upgrade Required',
-        'Analytics are available on Pro or Team plans.',
+        'NFC sharing is available on the Pro+ plan.',
         [
           { text: 'Cancel', style: 'cancel', onPress: () => router.back() },
           { text: 'Upgrade', onPress: () => purchase() },
-        ]
+        ],
       );
-    } else if (user) {
-      fetchAnalytics(user.uid).then((data) => {
-        setViews(data.views || 0);
-        setShares(data.shares || 0);
-      });
     }
-  }, [isPro, user]);
+  }, [isPro]);
 
   if (!isPro) {
     return null;
@@ -35,9 +25,8 @@ export default function AnalyticsScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Analytics</Text>
-      <Text>Views: {views}</Text>
-      <Text>Shares: {shares}</Text>
+      <Text style={styles.title}>NFC Sharing</Text>
+      <Text>This device can share your profile via NFC.</Text>
     </View>
   );
 }
@@ -52,6 +41,5 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 12,
   },
 });
