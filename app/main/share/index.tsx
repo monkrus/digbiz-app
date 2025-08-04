@@ -16,8 +16,32 @@ export default function ShareIndexScreen() {
         onPress={() => router.push('/main/share/card')}
       />
       <Button
+        title="Show My QR Code"
+        onPress={() => router.push('/main/share/qr')}
+      />
+      <Button
         title="Edit My Card"
         onPress={() => router.push('/main/edit')}
+      />
+      <Button
+        title="My Contacts"
+        onPress={() => router.push('/main/contacts')}
+      />
+      <Button
+        title="Backup / Restore"
+        onPress={() => router.push('/main/backup')}
+      />
+      <Button
+        title="Team Admin"
+        onPress={() => router.push('/main/team')}
+      />
+      <Button
+        title="NFC Share"
+        onPress={() => router.push('/main/nfc')}
+      />
+      <Button
+        title="Analytics"
+        onPress={() => router.push('/main/analytics')}
       />
       <Button
         title="View Shared Card (Demo)"

@@ -1,33 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, Alert, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { useSubscription } from '@/providers/SubscriptionProvider';
-import { auth } from '@/firebase';
-import { fetchAnalytics } from '@/lib/analytics';
 
-export default function AnalyticsScreen() {
+export default function TeamScreen() {
   const { isPro, purchase } = useSubscription();
-  const [views, setViews] = useState(0);
-  const [shares, setShares] = useState(0);
-  const user = auth.currentUser;
 
   useEffect(() => {
     if (!isPro) {
       Alert.alert(
         'Upgrade Required',
-        'Analytics are available on Pro or Team plans.',
+        'Team management is available on the Team plan.',
         [
           { text: 'Cancel', style: 'cancel', onPress: () => router.back() },
           { text: 'Upgrade', onPress: () => purchase() },
-        ]
+        ],
       );
-    } else if (user) {
-      fetchAnalytics(user.uid).then((data) => {
-        setViews(data.views || 0);
-        setShares(data.shares || 0);
-      });
     }
-  }, [isPro, user]);
+  }, [isPro]);
 
   if (!isPro) {
     return null;
@@ -35,9 +25,8 @@ export default function AnalyticsScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Analytics</Text>
-      <Text>Views: {views}</Text>
-      <Text>Shares: {shares}</Text>
+      <Text style={styles.title}>Team Administration</Text>
+      <Text>Manage members and permissions here.</Text>
     </View>
   );
 }
@@ -47,11 +36,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
+    padding: 24,
+    gap: 12,
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 12,
   },
 });

@@ -21,6 +21,7 @@ export default function ScanScreen() {
   const [loadingCard, setLoadingCard] = useState(false);
   const [note, setNote] = useState('');
   const [reminder, setReminder] = useState('');
+  const [tags, setTags] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -80,6 +81,10 @@ export default function ScanScreen() {
         {
           ...cardData,
           note,
+          tags: tags
+            .split(',')
+            .map((t) => t.trim())
+            .filter((t) => t),
           ...(reminderDate ? { reminder: reminderDate.toISOString() } : {}),
         },
       );
@@ -89,6 +94,7 @@ export default function ScanScreen() {
       setScanned(false);
       setNote('');
       setReminder('');
+      setTags('');
     } catch (err) {
       console.error('Error saving contact:', err);
       Alert.alert('Error', 'Failed to save contact');
@@ -161,6 +167,12 @@ export default function ScanScreen() {
         placeholder="Reminder (YYYY-MM-DD)"
         value={reminder}
         onChangeText={setReminder}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Tags (comma separated)"
+        value={tags}
+        onChangeText={setTags}
       />
       <Button
         title={saving ? 'Saving…' : 'Save Contact'}

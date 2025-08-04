@@ -6,18 +6,12 @@ import {
   Button,
   StyleSheet,
   Alert,
+  View,
 } from 'react-native';
 import { auth, db } from '@/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-
-interface CardData {
-  fullName: string;
-  title: string;
-  company: string;
-  phone: string;
-  email: string;
-  website: string;
-}
+import CardPreview from '@/components/CardPreview';
+import { CardData } from '@/types/card';
 
 // Simple helpers for validating email and phone numbers
 const isValidEmail = (value: string): boolean => /\S+@\S+\.\S+/.test(value);
@@ -31,6 +25,7 @@ export default function EditCardScreen() {
     phone: '',
     email: '',
     website: '',
+    theme: 'light',
   });
   const [loading, setLoading] = useState(false);
 
@@ -53,6 +48,7 @@ export default function EditCardScreen() {
             phone: data.phone ?? '',
             email: data.email ?? '',
             website: data.website ?? '',
+            theme: (data.theme as 'light' | 'dark') ?? 'light',
           });
         }
       } catch (err) {
@@ -74,11 +70,12 @@ export default function EditCardScreen() {
     // Trim values to remove leading/trailing whitespace
     const trimmed: CardData = {
       fullName: cardData.fullName.trim(),
-      title: cardData.title.trim(),
-      company: cardData.company.trim(),
-      phone: cardData.phone.trim(),
-      email: cardData.email.trim(),
-      website: cardData.website.trim(),
+      title: cardData.title?.trim() ?? '',
+      company: cardData.company?.trim() ?? '',
+      phone: cardData.phone?.trim() ?? '',
+      email: cardData.email?.trim() ?? '',
+      website: cardData.website?.trim() ?? '',
+      theme: cardData.theme,
     };
     // Validate required fields
     if (!trimmed.fullName) {
@@ -148,6 +145,19 @@ export default function EditCardScreen() {
         onChangeText={(v) => handleChange('website', v)}
         autoCapitalize="none"
       />
+      <View style={styles.themeRow}>
+        <Button
+          title="Light"
+          onPress={() => handleChange('theme', 'light')}
+          color={cardData.theme === 'light' ? '#007AFF' : undefined}
+        />
+        <Button
+          title="Dark"
+          onPress={() => handleChange('theme', 'dark')}
+          color={cardData.theme === 'dark' ? '#007AFF' : undefined}
+        />
+      </View>
+      <CardPreview data={cardData} />
       <Button
         title={loading ? 'Saving…' : 'Save Card'}
         onPress={handleSave}
@@ -173,5 +183,10 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 6,
     marginBottom: 8,
+  },
+  themeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 8,
   },
 });
