@@ -6,7 +6,9 @@ import {
   Button,
   StyleSheet,
   Alert,
+  Image,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { auth, db } from '@/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
@@ -17,6 +19,8 @@ interface CardData {
   phone: string;
   email: string;
   website: string;
+  linkedin: string;
+  photoUrl: string;
 }
 
 // Simple helpers for validating email and phone numbers
@@ -31,6 +35,8 @@ export default function EditCardScreen() {
     phone: '',
     email: '',
     website: '',
+    linkedin: '',
+    photoUrl: '',
   });
   const [loading, setLoading] = useState(false);
 
@@ -53,6 +59,8 @@ export default function EditCardScreen() {
             phone: data.phone ?? '',
             email: data.email ?? '',
             website: data.website ?? '',
+            linkedin: data.linkedin ?? '',
+            photoUrl: data.photoUrl ?? '',
           });
         }
       } catch (err) {
@@ -69,6 +77,21 @@ export default function EditCardScreen() {
     setCardData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleImagePick = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Permission required', 'Permission to access photos is needed.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.8,
+    });
+    if (!result.canceled) {
+      setCardData((prev) => ({ ...prev, photoUrl: result.assets[0].uri }));
+    }
+  };
+
   const handleSave = async () => {
     if (!user) return;
     // Trim values to remove leading/trailing whitespace
@@ -79,6 +102,8 @@ export default function EditCardScreen() {
       phone: cardData.phone.trim(),
       email: cardData.email.trim(),
       website: cardData.website.trim(),
+      linkedin: cardData.linkedin.trim(),
+      photoUrl: cardData.photoUrl.trim(),
     };
     // Validate required fields
     if (!trimmed.fullName) {
@@ -148,6 +173,17 @@ export default function EditCardScreen() {
         onChangeText={(v) => handleChange('website', v)}
         autoCapitalize="none"
       />
+      <TextInput
+        style={styles.input}
+        placeholder="LinkedIn"
+        value={cardData.linkedin}
+        onChangeText={(v) => handleChange('linkedin', v)}
+        autoCapitalize="none"
+      />
+      {cardData.photoUrl ? (
+        <Image source={{ uri: cardData.photoUrl }} style={styles.photo} />
+      ) : null}
+      <Button title="Select Photo" onPress={handleImagePick} />
       <Button
         title={loading ? 'Saving…' : 'Save Card'}
         onPress={handleSave}
@@ -172,6 +208,13 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 12,
     borderRadius: 6,
+    marginBottom: 8,
+  },
+  photo: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    alignSelf: 'center',
     marginBottom: 8,
   },
 });

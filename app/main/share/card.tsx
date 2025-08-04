@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Button,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { useNavigation } from 'expo-router';
 import { doc, getDoc } from 'firebase/firestore';
@@ -17,6 +18,8 @@ interface CardData {
   phone: string;
   email: string;
   website: string;
+  linkedin: string;
+  photoUrl: string;
 }
 
 export default function CardScreen() {
@@ -62,6 +65,9 @@ export default function CardScreen() {
 
   return (
     <View style={styles.container}>
+      {cardData.photoUrl && (
+        <Image source={{ uri: cardData.photoUrl }} style={styles.photo} />
+      )}
       <Text style={styles.name}>{cardData.fullName}</Text>
       {cardData.title && cardData.company && (
         <Text style={styles.field}>{cardData.title} at {cardData.company}</Text>
@@ -69,6 +75,7 @@ export default function CardScreen() {
       {cardData.phone && <Text style={styles.field}>📞 {cardData.phone}</Text>}
       {cardData.email && <Text style={styles.field}>✉️ {cardData.email}</Text>}
       {cardData.website && <Text style={styles.field}>🌐 {cardData.website}</Text>}
+      {cardData.linkedin && <Text style={styles.field}>🔗 {cardData.linkedin}</Text>}
       <Button
         title="Edit Card"
         onPress={() => navigation.navigate('/main/edit')}
@@ -97,5 +104,12 @@ const styles = StyleSheet.create({
   field: {
     fontSize: 16,
     marginBottom: 6,
+  },
+  photo: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    alignSelf: 'center',
+    marginBottom: 12,
   },
 });
