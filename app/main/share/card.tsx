@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, Button, StyleSheet } from 'react-native';
+import { View, Text, ActivityIndicator, Button, StyleSheet, Share } from 'react-native';
+import * as Linking from 'expo-linking';
 import CardPreview from '@/components/CardPreview';
 import { CardData } from '@/types/card';
 import { recordView } from '@/lib/analytics';
@@ -12,6 +13,7 @@ export default function CardScreen() {
   const user = auth.currentUser;
   const [cardData, setCardData] = useState<CardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const shareUrl = user ? Linking.createURL(`/share/${user.uid}`) : '';
 
   useEffect(() => {
     if (!user) return;
@@ -52,6 +54,18 @@ export default function CardScreen() {
   return (
     <View style={styles.container}>
       <CardPreview data={cardData} />
+      <Button title="Share Card" onPress={() => shareUrl && Share.share({ message: `Check out my digital business card: ${shareUrl}`, url: shareUrl })} />
+      <Button
+        title="Share via Email"
+        onPress={() =>
+          shareUrl &&
+          Linking.openURL(
+            `mailto:?subject=${encodeURIComponent('My Digital Business Card')}&body=${encodeURIComponent(
+              `Check out my digital business card: ${shareUrl}`,
+            )}`,
+          )
+        }
+      />
       <Button
         title="Edit Card"
         onPress={() => navigation.navigate('/main/edit')}
