@@ -1,6 +1,8 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/firebase';
 
 // Landing page for the share section.  Offers quick actions to view,
 // edit or preview a card.
@@ -20,6 +22,12 @@ export default function ShareIndexScreen() {
       <Button
         title="View Shared Card (Demo)"
         onPress={() => router.push('/main/share/123')}
+      />
+      <Button
+        title="Sign Out"
+        onPress={() =>
+          signOut(auth).then(() => router.replace('/auth/login'))
+        }
       />
     </View>
   );
